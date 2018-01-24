@@ -1,4 +1,5 @@
 let socket = io()
+
 function initMap(){}
 $(function () {
 
@@ -214,7 +215,7 @@ $(function () {
                         `
                     )
                 )
-
+                console.log(data.socket_id)
                 console.log(data.sender)
                 let to_send=data.sender                 //sender will b if b ask for request aupcoming yes or no is given(emit) by a
                 window.response_fun=function(value1)
@@ -228,7 +229,8 @@ $(function () {
                     socket.emit('response', {
                         message: my_msg,
                         send_to:data.sender,
-                        permission:value1
+                        permission:value1,
+                        socket_id_per_TO:data.socket_id
                     })
                 }
             }

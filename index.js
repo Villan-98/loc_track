@@ -7,10 +7,8 @@ const app = express()
 
 const server = http.createServer(app)
 const io = socketio(server)
-let tobe                // for the person to be tracked
+
 let socketIdName = {}
-let permissionto
-let fetcher
 let flong
 let flat
 let msg
@@ -22,12 +20,13 @@ io.on('connection', function (socket) {
     console.log('Socket connected ' + socket.id)
 
     socket.on('login', (data) => {
-        socketIdName[socket.id] = data.username
+        socketIdName[socket.id] = {username:data.username,loc_permission:0,per_of:""}
+
         socket.join(data.username)                                              //why this function is here
 
         io.emit('logged_in', {
             username: data.username,
-            sender: socketIdName[socket.id],
+            sender: socketIdName[socket.id].username,
             message:msg,
             success: true,
             socket_id:socket.id
@@ -39,36 +38,40 @@ io.on('connection', function (socket) {
     socket.on('request_track',(data)=>{
 
         let recipient = data.friend_name
-        tobe=data.friend_name
 
         io.to(recipient).emit('chat', {
             private: true,
             track:true,                 //track to open the option of yes or no button on the friend's page
-            sender: socketIdName[socket.id],
+            sender: socketIdName[socket.id].username,
             message: "I Want to track your location",
             timestamp: new Date(),
             socket_id:socket.id
         })
+        console.log(socket.id)
     })
     socket.on('stop_tracking',(data)=>{
-            tobe=''
-            io.to(fetcher).emit('chat',{
-                sender:socketIdName[socket.id],
+
+        socketIdName[socketIdName[socket.id].fetcher].per_of=null
+        socketIdName[socketIdName[socket.id].fetcher].loc_permission-=1
+
+        io.to(socketIdName[socket.id].fetcher).emit('chat',{
+                sender:socketIdName[socket.id].username,
                 private:true,
                 message: "Tracker Stopped"
             })
         }
     )
     socket.on('request_pressed',(data)=>{
-        console.log("to be "+tobe)
-        fetcher=socketIdName[socket.id]
-        io.to(tobe).emit('start_interval',{
-            locationof:tobe,
+        //console.log("to be "+tobe)
 
-            fetFriend:socketIdName[socket.id],
+       // fetcher=socketIdName[socket.id].username
+        io.to(socketIdName[socket.id].per_of).emit('start_interval',{
+            locationof:socketIdName[socket.id].per_of,
+
+            fetFriend:socketIdName[socket.id].username,
             nextTime:true
         })
-        console.log("request presed by "+socketIdName[socket.id])
+        console.log("request presed by "+socketIdName[socket.id].username)
     })
     socket.on('response',(data)=>{              //response from the friend comes here
 
@@ -77,14 +80,20 @@ io.on('connection', function (socket) {
         console.log("to br "+data.send_to)
         if(data.permission)
         {
-            permissionto=data.send_to
+
+            console.log(data.socket_id_per_TO)
+            //console.log(socketIdName[data.socket_id_per_TO].username)
+            socketIdName[data.socket_id_per_TO].loc_permission=1
+            socketIdName[data.socket_id_per_TO]["per_of"]=socket.id
+            socketIdName[socket.id]['fetcher']=data.socket_id_per_TO
+
             socket.emit('start_interval',{                          //by this a start its function to track location
                 fetFriend:data.send_to  //-------
             })
         }
         io.to(recipient).emit('chat', {
             private: true,
-            sender: socketIdName[socket.id],
+            sender: socketIdName[socket.id].username,
             message: data.message,
             timestamp: new Date(),
             button:true
@@ -154,7 +163,7 @@ io.on('connection', function (socket) {
     })
     ////chat listener///////////////////
     socket.on('chat', (data) => {
-        if (socketIdName[socket.id]) {
+        if (socketIdName[socket.id].username) {
             if(data.sending_location)
             {
 
@@ -163,7 +172,7 @@ io.on('connection', function (socket) {
                 io.to(data.to_be_send).emit('fetch_location',{              //after the location f friend has come ,self location tracker is start
                     fetch:true,
                     socket_id:socket.id,
-                    of1:socketIdName[socket.id]      //a
+                    of1:socketIdName[socket.id].username      //a
 
                 })
                 /*io.to(permissionto).emit('chat', {
@@ -181,14 +190,14 @@ io.on('connection', function (socket) {
 
                 io.to(recipient).emit('chat', {
                     private: true,
-                    sender: socketIdName[socket.id],
+                    sender: socketIdName[socket.id].username,
                     message: data.message,
                     timestamp: new Date()
                 })
 
             } else {
                 socket.broadcast.emit('chat', {
-                    sender: socketIdName[socket.id],
+                    sender: socketIdName[socket.id].username,
                     message: data.message,
                     timestamp: new Date()
                 })
