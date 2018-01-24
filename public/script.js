@@ -110,6 +110,13 @@ $(function () {
             command:true
         })
     })
+    //////locate all button event----no working/////
+    $('#loc_all').click(()=>{
+        $.get('/post',function(data){
+            console.log(data)
+
+        })
+    })
     //login btn event///////
     btnLogin.click(() => {
         socket.emit('login', {
@@ -241,6 +248,7 @@ $(function () {
             }
             if(data.map)
             {{
+                console.log("map ic"+data.object1)
                 $('#map').show()
                 console.log(data.map)
                 console.log("button"+data.button)

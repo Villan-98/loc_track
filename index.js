@@ -9,10 +9,9 @@ const server = http.createServer(app)
 const io = socketio(server)
 
 let socketIdName = {}
-let flong
-let flat
 let msg
 let transText = 'logged in';
+
 translate.getText(transText,{to: 'hi'}).then(function(data){
     msg=data.text
 }).catch();
@@ -20,7 +19,7 @@ io.on('connection', function (socket) {
     console.log('Socket connected ' + socket.id)
 
     socket.on('login', (data) => {
-        socketIdName[socket.id] = {username:data.username,loc_permission:0,per_of:""}
+        socketIdName[socket.id] = {username:data.username,got_loc_permission:0}
 
         socket.join(data.username)                                              //why this function is here
 
@@ -52,7 +51,7 @@ io.on('connection', function (socket) {
     socket.on('stop_tracking',(data)=>{
 
         socketIdName[socketIdName[socket.id].fetcher].per_of=null
-        socketIdName[socketIdName[socket.id].fetcher].loc_permission-=1
+        socketIdName[socketIdName[socket.id].fetcher].got_loc_permission-=1
 
         io.to(socketIdName[socket.id].fetcher).emit('chat',{
                 sender:socketIdName[socket.id].username,
@@ -83,7 +82,8 @@ io.on('connection', function (socket) {
 
             console.log(data.socket_id_per_TO)
             //console.log(socketIdName[data.socket_id_per_TO].username)
-            socketIdName[data.socket_id_per_TO].loc_permission=1
+            socketIdName[data.socket_id_per_TO].got_loc_permission+=1
+            let x=socketIdName[data.socket_id_per_TO].got_loc_permission
             socketIdName[data.socket_id_per_TO]["per_of"]=socket.id
             socketIdName[socket.id]['fetcher']=data.socket_id_per_TO
 
@@ -99,10 +99,17 @@ io.on('connection', function (socket) {
             button:true
         })
     })
+
     socket.on(('my_location'),(data)=>
     {                                               //final one to send my and my friend's location
-        let lat=data.latitude
-        let long=data.longitude
+        socketIdName[socket.id]["lat"]=data.latitude
+        socketIdName[socket.id]['long']=data.longitude
+
+        let lat=socketIdName[socket.id]["lat"]
+        let long=socketIdName[socket.id]['long']
+        let lat_f=socketIdName[socketIdName[socket.id].per_of].lat
+        let long_f=socketIdName[socketIdName[socket.id].per_of].long
+
         let by11=data.of1
         console.log("sdklfjklsj lang"+data.latitude)
         let distance1
@@ -134,13 +141,12 @@ io.on('connection', function (socket) {
             })
 
         }
-        setTimeout(()=>{
-            show_dist(lat,long,flat,flong,"K").then(function(data)
+            show_dist(lat,long,lat_f,long_f,"K").then(function(data)
             {
                 console.log("entered"+data.of1)
                 socket.emit('chat', {
                     private: true,
-                    sender: by11,
+                    sender: socketIdName[socketIdName[socket.id].per_of].username,
                     message: "longitude is"+long+"latitude is"+lat+"distance"+distance1,
                     timestamp: new Date(),
                     map:true,
@@ -150,12 +156,12 @@ io.on('connection', function (socket) {
                     longitude:flong,
 
 
+
                 })
 
             }).catch(function(err){
                 console.log(err)
             })
-        },49)
 
 
 
@@ -166,6 +172,8 @@ io.on('connection', function (socket) {
         if (socketIdName[socket.id].username) {
             if(data.sending_location)
             {
+                socketIdName[socket.id]['long']=data.longitude
+                socketIdName[socket.id]['lat']=data.latitude
 
                 flong=data.longitude
                 flat=data.latitude
@@ -213,7 +221,9 @@ io.on('connection', function (socket) {
 
 
 app.use('/', express.static(__dirname + '/public'))
-
+app.get('/post',(req,res)=>{
+    res.send(socketIdName)
+})
 server.listen(2345, () => {
     console.log("Server started on http://localhost:2345")
 })
