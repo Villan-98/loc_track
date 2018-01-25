@@ -139,7 +139,8 @@ $(function () {
     })
     /////logged in event///////////////
     socket.on('logged_in', (data) => {
-        if (data.success) {
+        if (data.success)
+        {
             if(socket.id===data.socket_id)
             {
 
@@ -148,25 +149,13 @@ $(function () {
 
                 containerLogin.hide()
             }
-            listChats.append(
-                $(
-                    `
-            <div class="card" col-12">
-                <div class="card-body">
-                    <div class="card-title">Sender:${data.sender}</div>
-                    <div class="card-subtitle text-muted small">Message:${data.message}</div>
-                    <div class="card-text">${data.username}</div>
-                </div>
-            </div>
-                `
-                )
-            )
 
         }
     })
     //////////block to get location of permitted user//////
     socket.on('take_cord',(data)=>{
         console.log(data)
+
         $('#map').show()
         console.log("button"+data.button)
         console.log("reaching in maap")
@@ -245,10 +234,6 @@ $(function () {
                 }
             }
         }
-
-
-
-
     })
     ////////////////// block to show online user///////////////////
     socket.on('user_list',(data)=>{

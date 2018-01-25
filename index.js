@@ -30,19 +30,15 @@ io.on('connection', function (socket) {
     })
     socket.on('login', (data) => {
         socketIdName[socket.id] = {username:data.username,got_loc_permission:0,per_of:{}}
-
         socket.join(data.username)                                              //why this function is here
-        user_list()
+        user_list()                 //to update the list of online user
         io.emit('logged_in',
             {
-            username: data.username,
-            sender: socketIdName[socket.id].username,
-            message:msg,
-            success: true,
-            socket_id:socket.id
-        })
+                success: true,
+                socket_id:socket.id
+            })
     })
-    ///////////////
+    ///////////////to show the location of multiple person on the map//////////
     socket.on('get_all',(data)=>{
         let cordinate={}
         let x
@@ -74,10 +70,8 @@ io.on('connection', function (socket) {
         console.log(socket.id)
     })
     socket.on('stop_tracking',(data)=>{
-
-        socketIdName[socketIdName[socket.id].fetcher].per_of[0]=null
+        socketIdName[socketIdName[socket.id].fetcher].per_of[0]=null                    //try to implement splice here
         socketIdName[socketIdName[socket.id].fetcher].got_loc_permission-=1
-
         io.to(socketIdName[socket.id].fetcher).emit('chat',{
                 sender:socketIdName[socket.id].username,
                 private:true,
@@ -86,16 +80,12 @@ io.on('connection', function (socket) {
         }
     )
     socket.on('request_pressed',(data)=>{
-        //console.log("to be "+tobe)
-
-       // fetcher=socketIdName[socket.id].username
         io.to(socketIdName[socket.id].per_of[0]).emit('start_interval',{
             locationof:socketIdName[socket.id].per_of[0],
-
             fetFriend:socketIdName[socket.id].username,
             nextTime:true
         })
-        console.log("request presed by "+socketIdName[socket.id].username)
+       // console.log("request presed by "+socketIdName[socket.id].username)
     })
     socket.on('response',(data)=>{              //response from the friend comes here
 
@@ -130,13 +120,10 @@ io.on('connection', function (socket) {
     {                                               //final one to send my and my friend's location
         socketIdName[socket.id]["lat"]=data.latitude
         socketIdName[socket.id]['long']=data.longitude
-
         let lat=socketIdName[socket.id]["lat"]
         let long=socketIdName[socket.id]['long']
         let lat_f=socketIdName[socketIdName[socket.id].per_of[0]].lat
         let long_f=socketIdName[socketIdName[socket.id].per_of[0]].long
-
-        console.log("sdklfjklsj lang"+data.latitude)
         let distance1
 
         function show_dist(lat1, lon1, lat2, lon2, unit)
@@ -172,7 +159,7 @@ io.on('connection', function (socket) {
                 socket.emit('chat', {
                     private: true,
                     sender: socketIdName[socketIdName[socket.id].per_of[0]].username,
-                    message: "longitude is"+long+"latitude is"+lat+"distance"+distance1,
+                    message: "longitude is"+long+"latitude is"+lat+"approx distance"+distance1,
                     timestamp: new Date(),
                     map:true,
                     longitude_me:long,
