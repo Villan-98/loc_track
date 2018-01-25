@@ -112,10 +112,7 @@ $(function () {
     })
     //////locate all button event----no working/////
     $('#loc_all').click(()=>{
-        $.get('/post',function(data){
-            console.log(data)
-
-        })
+        socket.emit('get_all',{})
     })
     //login btn event///////
     btnLogin.click(() => {
@@ -166,6 +163,92 @@ $(function () {
             )
 
         }
+    })
+    //////////block to get location of permitted user//////
+    socket.on('take_cord',(data)=>{
+        console.log(data)
+        $('#map').show()
+        console.log("button"+data.button)
+        console.log("reaching in maap")
+        {
+            // Map options
+            var options = {
+                zoom:12,
+                center:{lat:28.7041,lng:77.1025}
+            }
+            let a;
+            console.log(a)
+            // New map
+            var map = new google.maps.Map(document.getElementById('map'), options);
+
+            // Listen for click on map
+
+            // Array of markers
+            let marker1=[{coords:'',iconImage:'',content:''}]
+            let j=0
+            for(x in data)
+            {
+
+                marker1[j]={
+
+                    coords:{lat:data[x].lat,lng:data[x].long},
+                    iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+                    content:'<h1>Location of Friend</h1>'
+                }
+                if(j%4===1)
+                {
+                    marker1[j].iconImage='https://maps.google.com/mapfiles/kml/shapes/parking_lot_maps.png'
+                }
+                if(j%4===2)
+                {
+                    marker1[j].iconImage='https://maps.google.com/mapfiles/kml/shapes/library_maps.png'
+                }
+                if(j%4===3)
+                {
+                    marker1[j].iconImage='https://maps.google.com/mapfiles/kml/shapes/info-i_maps.png'
+
+                }
+                j++
+            }
+            console.log(marker1)
+
+
+            // Loop through markers
+            for(var i = 0;i < marker1.length;i++){
+                // Add marker
+                addMarker(marker1[i]);
+            }
+
+            // Add Marker Function
+            function addMarker(props){
+                var marker = new google.maps.Marker({
+                    position:props.coords,
+                    map:map,
+                    //icon:props.iconImage
+                });
+
+                // Check for customicon
+                if(props.iconImage){
+                    // Set icon image
+                    marker.setIcon(props.iconImage);
+                }
+
+                // Check content
+                if(props.content){
+                    var infoWindow = new google.maps.InfoWindow({
+                        content:props.content
+                    });
+
+                    marker.addListener('click', function(){
+                        infoWindow.open(map, marker);
+                    });
+                }
+            }
+        }
+
+
+
+
     })
     ////////////////// block to show online user///////////////////
     socket.on('user_list',(data)=>{
@@ -285,23 +368,6 @@ $(function () {
 
                     // Listen for click on map
 
-
-                    /*
-                    // Add marker
-                    var marker = new google.maps.Marker({
-                      position:{lat:42.4668,lng:-70.9495},
-                      map:map,
-                      icon:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'
-                    });
-
-                    var infoWindow = new google.maps.InfoWindow({
-                      content:'<h1>Lynn MA</h1>'
-                    });
-
-                    marker.addListener('click', function(){
-                      infoWindow.open(map, marker);
-                    });
-                    */
 
                     // Array of markers
                     var markers = [
