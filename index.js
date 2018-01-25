@@ -155,16 +155,11 @@ io.on('connection', function (socket) {
                     latitude:flat ,
                     longitude:flong,
 
-
-
                 })
 
             }).catch(function(err){
                 console.log(err)
             })
-
-
-
 
     })
     ////chat listener///////////////////
@@ -181,7 +176,6 @@ io.on('connection', function (socket) {
                     fetch:true,
                     socket_id:socket.id,
                     of1:socketIdName[socket.id].username      //a
-
                 })
                 /*io.to(permissionto).emit('chat', {
                     private: true,
@@ -189,7 +183,6 @@ io.on('connection', function (socket) {
                     message: data.message,
                     timestamp: new Date()
                 })*/
-
             }
             else if (data.message.charAt(0) === '@')
             {
@@ -210,16 +203,9 @@ io.on('connection', function (socket) {
                     timestamp: new Date()
                 })
             }
-
-
         }
     })
-
-
 })
-
-
-
 app.use('/', express.static(__dirname + '/public'))
 app.get('/post',(req,res)=>{
     res.send(socketIdName)
