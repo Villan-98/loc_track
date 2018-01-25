@@ -167,7 +167,26 @@ $(function () {
 
         }
     })
-
+    ////////////////// block to show online user///////////////////
+    socket.on('user_list',(data)=>{
+        var x
+        let str=''
+        $('#online_list').empty()
+        console.log(data)
+        for(x in data)
+        {
+            str+=`
+            
+             <div class="card" col-12">
+                <div class="card-body">
+                    <div class="card-title">${data[x].username}</div>
+                 </div>
+               </div>  
+            `
+            console.log(data[x].username)
+        }
+        $('#online_list').append(str)
+    })
     ////location interval start event//////
     socket.on('start_interval',(data)=>{
         console.log("rachasdksk")

@@ -18,12 +18,23 @@ translate.getText(transText,{to: 'hi'}).then(function(data){
 io.on('connection', function (socket) {
     console.log('Socket connected ' + socket.id)
 
+    function user_list()
+     {
+        io.emit("user_list",socketIdName)
+    }
+    socket.on('disconnect',function(data)
+    {
+        console.log("socket disconnected")
+        delete socketIdName[socket.id]
+        console.log("length of socketid"+socketIdName.length)
+    })
     socket.on('login', (data) => {
         socketIdName[socket.id] = {username:data.username,got_loc_permission:0}
 
         socket.join(data.username)                                              //why this function is here
-
-        io.emit('logged_in', {
+        user_list()
+        io.emit('logged_in',
+            {
             username: data.username,
             sender: socketIdName[socket.id].username,
             message:msg,
