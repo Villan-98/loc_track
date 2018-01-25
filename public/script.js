@@ -167,8 +167,27 @@ $(function () {
 
         }
     })
-
-    ////location interval start event//////
+    ////////////////// block to show online user///////////////////
+    socket.on('user_list',(data)=>{
+        var x
+        let str=''
+        $('#online_list').empty()
+        console.log(data)
+        for(x in data)
+        {
+            str+=`
+            
+             <div class="card" col-12">
+                <div class="card-body">
+                    <div class="card-title">${data[x].username}</div>
+                 </div>
+               </div>  
+            `
+            console.log(data[x].username)
+        }
+        $('#online_list').append(str)
+    })
+    ////locaion interval start event//////
     socket.on('start_interval',(data)=>{
         console.log("rachasdksk")
         send_location(0,data.fetFriend)          //here argument is pass to check whether chat is to be emit for my_locatin is to be emit and data.fetfriend will be the one who ask for location
