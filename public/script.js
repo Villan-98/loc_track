@@ -13,7 +13,7 @@ $(function () {
     containerChat.hide()
     containersend.hide()
     stopLocTrack.hide()
-    $('#chat-opt').hide()
+   // $('#chat-opt').hide()
     $('#map').hide()
     let btnLogin = $('#btn-login')
     let btnSend = $('#btn-send')
@@ -98,11 +98,11 @@ $(function () {
         })
     })
     ///////send chat message/////
-    btnSend.click(() => {
+    /*btnSend.click(() => {
         socket.emit('chat', {
             message: inpMsg.val()
         })
-    })
+    })*/
     /////stop location tracker/////
     stopLocTrack.click(()=>{
         console.log("stop pressed")
@@ -122,10 +122,10 @@ $(function () {
 
     })
     ///
-    $('#btn-chat').click(()=>
+    /*$('#btn-chat').click(()=>
     {
         $('#chat-opt').show()
-    })
+    })*/
 
     $('#btn-loc').click(()=>
     {

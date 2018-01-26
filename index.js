@@ -20,7 +20,22 @@ io.on('connection', function (socket) {
 
     function user_list()
      {
-        io.emit("user_list",socketIdName)
+         var x
+
+
+         for(x in socketIdName){
+             var y
+
+             let userList={}
+             for(y in socketIdName) {
+                 userList[y] = {username: socketIdName[y].username}
+                 if(x===y){
+                     userList[y] = {username: "You"}
+                 }
+             }
+             io.to(x).emit("user_list",userList)
+         }
+
     }
     socket.on('disconnect',function(data)
     {
