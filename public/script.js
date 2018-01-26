@@ -13,6 +13,7 @@ $(function () {
     containerChat.hide()
     containersend.hide()
     stopLocTrack.hide()
+    $('#refetch').hide()
    // $('#chat-opt').hide()
     $('#map').hide()
     let btnLogin = $('#btn-login')
@@ -78,7 +79,7 @@ $(function () {
                     sending_location:1,
                     longitude:longitude,
                     latitude:latitude,
-                    to_be_send:my,
+                    id_of_per_giving:my,
                     of1:fetfriend
 
                 })
@@ -94,7 +95,8 @@ $(function () {
     getRequestButton.click(()=>{
         console.log("fetch button pressed")
         socket.emit('request_pressed',{
-            a:"a"
+            a:"a",
+            loc_of:$('#refetch').val()
         })
     })
     ///////send chat message/////
@@ -266,10 +268,10 @@ $(function () {
         stopLocTrack.show()
         console.log("sjfksjd",data.nextTime)
     })
-    /////fetch loctaion event////
+    /////fetch location event////
     socket.on('fetch_location',(data)=>{
 
-        send_location(data.socket_id,data.of1)
+        send_location(data.socket_id,data.of1)                  //here in socket_id(there wil be the id of the friend whose location i want to fetch
         console.log("fetch request has come")
 
     })
@@ -305,8 +307,8 @@ $(function () {
                             <div class="card bg-secondary col-12">
                                 <div class="card-body">
                                  <div class="row">
-                                    <button onclick="response_fun(1)" class="btn btn-info col m-4" >YES</button>                
-                                    <button onclick="response_fun(0)"class="btn btn-info col m-4" >NO</button>
+                                    <button onclick="response_fun(1)" class="btn btn-info req_per col m-4" >YES</button>                
+                                    <button onclick="response_fun(0)"class="btn btn-info req_per col m-4" >NO</button>
                                 </div>
                                </div>
                             </div>
@@ -318,15 +320,15 @@ $(function () {
                 let to_send=data.sender                 //sender will b if b ask for request aupcoming yes or no is given(emit) by a
                 window.response_fun=function(value1)
                 {
+                    $('.req_per').prop("disabled",true)
                     let  my_msg="Permission not Granted"
                     if(value1){
                         my_msg="Permission Granted"
 
                     }
-                    console.log("sdkfjklsjfklsjkfl")
                     socket.emit('response', {
                         message: my_msg,
-                        send_to:data.sender,
+                        send_to:data.sender,                        //name of the fetcher
                         permission:value1,
                         socket_id_per_TO:data.socket_id
                     })
@@ -336,6 +338,7 @@ $(function () {
             {
                 console.log("entered in button")
                 getRequestButton.show()
+                $('#refetch').show()
             }
             if(data.map)
             {{

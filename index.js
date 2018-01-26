@@ -71,22 +71,41 @@ io.on('connection', function (socket) {
         socket.emit("take_cord",cordinate)
     })
     /////////////////
+    function validate_user(candidate){
+        let x
+        let find=0
+        for(x in socketIdName){
+            if(socketIdName[x].username===candidate){
+                find=1
+            }
+        }
+        return find
+    }
+
+    ///////////////
     socket.on('request_track',(data)=>{
 
         let recipient = data.friend_name
-        if(data.friend_name===socketIdName[socket.id].username)
+        if(validate_user(data.friend_name))
         {
-            socket.emit('alert',{})
+
+            if(data.friend_name===socketIdName[socket.id].username)
+            {
+                socket.emit('alert',{})
+            }
+            else{
+                io.to(recipient).emit('chat', {
+                    private: true,
+                    track:true,                 //track to open the option of yes or no button on the friend's page
+                    sender: socketIdName[socket.id].username,
+                    message: "I Want to track your location",
+                    timestamp: new Date(),
+                    socket_id:socket.id
+                })
+            }
         }
         else{
-            io.to(recipient).emit('chat', {
-                private: true,
-                track:true,                 //track to open the option of yes or no button on the friend's page
-                sender: socketIdName[socket.id].username,
-                message: "I Want to track your location",
-                timestamp: new Date(),
-                socket_id:socket.id
-            })
+            socket.emit('alert',{})
         }
 
         console.log(socket.id)
@@ -102,8 +121,9 @@ io.on('connection', function (socket) {
         }
     )
     socket.on('request_pressed',(data)=>{
-        io.to(socketIdName[socket.id].per_of[0]).emit('start_interval',{
-            locationof:socketIdName[socket.id].per_of[0],
+        console.log(data.loc_of)
+        io.to(data.loc_of).emit('start_interval',{
+            locationof:data.loc_of,
             fetFriend:socketIdName[socket.id].username,
             nextTime:true
         })
@@ -111,9 +131,7 @@ io.on('connection', function (socket) {
     })
     socket.on('response',(data)=>{              //response from the friend comes here
 
-        let recipient = data.send_to            //in data.send to there will bw b if b ask for location
-
-        console.log("to br "+data.send_to)
+        let recipient = data.send_to            //in data.send to there will be b if b ask for location
         if(data.permission)
         {
 
@@ -121,7 +139,6 @@ io.on('connection', function (socket) {
             //console.log(socketIdName[data.socket_id_per_TO].username)
             socketIdName[data.socket_id_per_TO].got_loc_permission+=1
             let x=socketIdName[data.socket_id_per_TO].got_loc_permission
-            console.log("x is "+x)
             socketIdName[data.socket_id_per_TO]["per_of"][x-1]=socket.id
             socketIdName[socket.id]['fetcher']=data.socket_id_per_TO
 
@@ -139,22 +156,23 @@ io.on('connection', function (socket) {
     })
 
     socket.on(('my_location'),(data)=>
-    {                                               //final one to send my and my friend's location
+    {
+        console.log("entered in my location")
+        //final one to send my and my friend's location
         socketIdName[socket.id]["lat"]=data.latitude
         socketIdName[socket.id]['long']=data.longitude
         let lat=socketIdName[socket.id]["lat"]
         let long=socketIdName[socket.id]['long']
-        let lat_f=socketIdName[socketIdName[socket.id].per_of[0]].lat
-        let long_f=socketIdName[socketIdName[socket.id].per_of[0]].long
+        let latf =socketIdName[data.id_of_per_giving]['lat']
+        let longf =socketIdName[data.id_of_per_giving]['long']
         let distance1
-
+        let location_of=socketIdName[data.id_of_per_giving]['username']
+        console.log("id of per giving"+location_of)
         function show_dist(lat1, lon1, lat2, lon2, unit)
         {
             return new Promise(function(resolve,reject)
             {
 
-                console.log("thid id sachin")
-                console.log(lat1)
                 var radlat1 = Math.PI * lat1/180
                 var radlat2 = Math.PI * lat2/180
                 var theta = lon1-lon2
@@ -175,19 +193,20 @@ io.on('connection', function (socket) {
             })
 
         }
-            show_dist(lat,long,lat_f,long_f,"K").then(function(data)
+            show_dist(lat,long,latf,longf,"K").then(function(data)
             {
                 console.log("entered"+data.of1)
                 socket.emit('chat', {
                     private: true,
-                    sender: socketIdName[socketIdName[socket.id].per_of[0]].username,
-                    message: "longitude is"+long+"latitude is"+lat+"approx distance"+distance1,
+                   // sender: socketIdName[data.id_of_per_giving]['username'],      why data.id_of_per_giving is undefined here
+                    sender:location_of,
+                    message: "longitude is"+longf+"latitude is"+latf+"approx distance"+distance1,
                     timestamp: new Date(),
                     map:true,
                     longitude_me:long,
                     latitude_me:lat,
-                    latitude:flat ,
-                    longitude:flong,
+                    latitude:latf ,
+                    longitude:longf,
 
                 })
 
@@ -198,14 +217,13 @@ io.on('connection', function (socket) {
     })
     ////chat listener///////////////////
     socket.on('chat', (data) => {
-        if (socketIdName[socket.id].username) {
+        //if (socketIdName[socket.id].username)
+        //{
             if(data.sending_location)
             {
                 socketIdName[socket.id]['long']=data.longitude
                 socketIdName[socket.id]['lat']=data.latitude
 
-                flong=data.longitude
-                flat=data.latitude
                 io.to(data.to_be_send).emit('fetch_location',{              //after the location f friend has come ,self location tracker is start
                     fetch:true,
                     socket_id:socket.id,
@@ -218,7 +236,7 @@ io.on('connection', function (socket) {
                     timestamp: new Date()
                 })*/
             }
-            else if (data.message.charAt(0) === '@')
+            /*else if (data.message.charAt(0) === '@')
             {
 
                 let recipient = data.message.split(' ')[0].substring(1)
@@ -236,8 +254,8 @@ io.on('connection', function (socket) {
                     message: data.message,
                     timestamp: new Date()
                 })
-            }
-        }
+            }*/
+       // }
     })
 })
 app.use('/', express.static(__dirname + '/public'))
