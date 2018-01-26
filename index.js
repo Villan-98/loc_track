@@ -74,15 +74,21 @@ io.on('connection', function (socket) {
     socket.on('request_track',(data)=>{
 
         let recipient = data.friend_name
+        if(data.friend_name===socketIdName[socket.id].username)
+        {
+            socket.emit('alert',{})
+        }
+        else{
+            io.to(recipient).emit('chat', {
+                private: true,
+                track:true,                 //track to open the option of yes or no button on the friend's page
+                sender: socketIdName[socket.id].username,
+                message: "I Want to track your location",
+                timestamp: new Date(),
+                socket_id:socket.id
+            })
+        }
 
-        io.to(recipient).emit('chat', {
-            private: true,
-            track:true,                 //track to open the option of yes or no button on the friend's page
-            sender: socketIdName[socket.id].username,
-            message: "I Want to track your location",
-            timestamp: new Date(),
-            socket_id:socket.id
-        })
         console.log(socket.id)
     })
     socket.on('stop_tracking',(data)=>{

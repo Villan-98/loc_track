@@ -152,6 +152,10 @@ $(function () {
 
         }
     })
+    ////////////listening to various alert///////////////
+    socket.on('alert',(data)=>{
+        alert("OOOps something went wrong");
+    })
     //////////block to get location of permitted user//////
     socket.on('take_cord',(data)=>{
         console.log(data)
