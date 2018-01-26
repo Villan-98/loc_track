@@ -123,8 +123,7 @@ io.on('connection', function (socket) {
     socket.on('request_pressed',(data)=>{
         console.log(data.loc_of)
         io.to(data.loc_of).emit('start_interval',{
-            locationof:data.loc_of,
-            fetFriend:socketIdName[socket.id].username,
+            fetFriend:socket.id,
             nextTime:true
         })
        // console.log("request presed by "+socketIdName[socket.id].username)
@@ -143,7 +142,8 @@ io.on('connection', function (socket) {
             socketIdName[socket.id]['fetcher']=data.socket_id_per_TO
 
             socket.emit('start_interval',{                          //by this a start its function to track location
-                fetFriend:data.send_to  //-------
+                fetFriend:data.send_to,  //-------
+                nextTime:false
             })
         }
         io.to(recipient).emit('chat', {
