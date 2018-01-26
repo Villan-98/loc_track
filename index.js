@@ -27,6 +27,7 @@ io.on('connection', function (socket) {
         console.log("socket disconnected")
         delete socketIdName[socket.id]
         console.log("length of socketid"+socketIdName.length)
+        user_list()
     })
     socket.on('login', (data) => {
         socketIdName[socket.id] = {username:data.username,got_loc_permission:0,per_of:{}}
