@@ -106,18 +106,18 @@ io.on('connection', function (socket) {
             }
             else{
                 let msg_in="I Want to track your location"
-                translate.getText(msg_in,{to: "ur"}).then(function(data){
+                /*translate.getText(msg_in,{to: "en"}).then(function(data){
                     let msg_out=data.text
-                    io.to(recipient).emit('chat', {
-                        private: true,
-                        track:true,                 //track to open the option of yes or no button on the friend's page
-                        sender: socketIdName[socket.id].username,
-                        message: msg_out,
-                        timestamp: new Date(),
-                        socket_id:socket.id
-                    })
 
-                }).catch();
+                }).catch();*/
+                io.to(recipient).emit('chat', {
+                    private: true,
+                    track:true,                 //track to open the option of yes or no button on the friend's page
+                    sender: socketIdName[socket.id].username,
+                    message: msg_in,
+                    timestamp: new Date(),
+                    socket_id:socket.id
+                })
 
             }
         }
@@ -128,21 +128,28 @@ io.on('connection', function (socket) {
         console.log(socket.id)
     })
     socket.on('stop_tracking',(data)=>{
-            socketIdName[socketIdName[socket.id].fetcher].per_of[0]=null                    //try to implement splice here
+            let x;
+            for ( x in socketIdName[socketIdName[socket.id].fetcher].per_of ){
+                if(socketIdName[socketIdName[socket.id].fetcher].per_of[x]===socket.id){
+
+                    socketIdName[socketIdName[socket.id].fetcher].per_of[socket.id]=null
+                }
+            }
+            socketIdName[socketIdName[socket.id].fetcher].per_of[socket.id]=null                    //try to implement splice here
             socketIdName[socketIdName[socket.id].fetcher].got_loc_permission-=1
 
 
             let msg_in="Tracker_stopped by"+socketIdName[socket.id].username
-            translate.getText(msg_in,{to: "ur"}).then(function(data){
+            /*translate.getText(msg_in,{to: "ur"}).then(function(data){
                 let msg_out=data.text
 
-                io.to(socketIdName[socket.id].fetcher).emit('chat',{
-                    sender:socketIdName[socket.id].username,
-                    private:true,
-                    message: msg_out
-                })
-            }).catch();
+            }).catch();*/
 
+            io.to(socketIdName[socket.id].fetcher).emit('chat',{
+                sender:socketIdName[socket.id].username,
+                private:true,
+                message: msg_in
+            })
         }
     )
     socket.on('request_pressed',(data)=>{
@@ -176,18 +183,18 @@ io.on('connection', function (socket) {
 
 
         let msg_in=data.message
-        translate.getText(msg_in,{to: "ur"}).then(function(data){
-            let msg_out=data.text
+        /* translate.getText(msg_in,{to: "en"}).then(function(data){
+             let msg_out=data.text
 
-            io.to(recipient).emit('chat', {
-                private: true,
-                sender: socketIdName[socket.id].username,
-                message: msg_out,
-                timestamp: new Date(),
-                button:true
-            })
-        }).catch();
+         }).catch();*/
 
+        io.to(recipient).emit('chat', {
+            private: true,
+            sender: socketIdName[socket.id].username,
+            message: msg_in,
+            timestamp: new Date(),
+            button:true
+        })
 
     })
 
@@ -240,23 +247,24 @@ io.on('connection', function (socket) {
                 lang=socketIdName[socket.id].lang_code
             }
 
-            translate.getText(msg_in,{to:'hi'}).then(function(data){
+            translate.getText(msg_in,{to:''}).then(function(data){
                 msg_out=data.text
-                console.log(msg)
-                socket.emit('chat', {
-                    private: true,
-                    // sender: socketIdName[data.id_of_per_giving]['username'],      why data.id_of_per_giving is undefined here
-                    sender:location_of,
-                    message: msg_out,
-                    timestamp: new Date(),
-                    map:true,
-                    longitude_me:long,
-                    latitude_me:lat,
-                    latitude:latf ,
-                    longitude:longf,
 
-                })
             }).catch();
+            console.log(msg)
+            socket.emit('chat', {
+                private: true,
+                // sender: socketIdName[data.id_of_per_giving]['username'],      why data.id_of_per_giving is undefined here
+                sender:location_of,
+                message: msg_in,
+                timestamp: new Date(),
+                map:true,
+                longitude_me:long,
+                latitude_me:lat,
+                latitude:latf ,
+                longitude:longf,
+
+            })
             console.log("entered"+data.of1)
 
 

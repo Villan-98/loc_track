@@ -262,13 +262,18 @@ $(function () {
         for(x in data)
         {
             str+=`
-            <li> ${data[x].username}</li>
+            <li class="bg-light my-1 text-center"> ${data[x].username}</li>
             
             `
             console.log(data[x].username)
         }
         $('#online_list').append(str)
     })
+    ////disable fetcher button/////
+    socket.on('disable',(data)=>{
+        $('#btn_re').prop("disabled",true)
+    })
+
     ////locaion interval start event//////
     socket.on('start_interval',(data)=>{
         console.log("rachasdksk")

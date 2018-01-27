@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>My Google Map</title>
+
+    <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJIv4zhKTOjSbFsYuoLdQqY26Ipl66&callback=initMap">
+    </script>
+    <script src="jquery.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+
+    <style>
+        #map{
+            height:400px;
+            width:100%;
+        }
+    </style>
+</head>
+<body>
+<div class="container"></div>
+<h1 class="text-center"></h1>
+<div>
+    <input type="text" class="form-control" id="refetch" placeholder="from the permitted candidate">
+    <button class="btn btn-info col " id="btn_re">fetch location</button>
+
+    <button class="btn btn-info col m-4" id="btn_re_stop"> Stop location Tracking</button>
+</div>
+<!--<div class="container bg-light" id="login">
+    <form>
+
+        <div class="form-group">
+            <label for="inp-username">User name</label>
+            <input type="text" class="form-control" id="inp-username" placeholder="User Name">
+        </div>
+        <div class="form-group">
+            <label for="input_language">Another label</label>
+            <input type="text" class="form-control" id="input_language" placeholder="language">
+        </div>
+        <!-- </form>
+         <div class="form-row">
+             <div class="form-group col-md-6">
+                 <label for="inp-userName">User Name</label>
+                 <input type="email" class="form-control" id="inp-username" placeholder="User Name">
+             </div>
+         </div>
+
+         <div class="form-row">
+
+             <div class="form-group col-md-6">
+                 <label for="input_language">Enter the language you prefer</label>
+                 <input type="text" class="form-control" id="input_language" placeholder="language">
+             </div>
+         </div>
+
+        <div class="row">
+            <button class="btn btn-primary " id="btn-login">Login</button>
+        </div>
+    </form>
+</div>
+-->
+<div class="container-fluid" id="chatbox">
+    <div class=" row">
+
+        <div class="col" style="width:400px">
+            <h1>online buddies</h1>
+            <div class="row p-4 m-4" id="online_list">
+
+            </div>
+
+        </div>
+        <div class="col">
+
+            <!--<button class="btn btn-info " id="btn-chat">
+                <h4>Chat</h4>
+            </button>-->
+            <button class="btn btn-info " id="btn-loc">
+                <h4>Location</h4>
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col my-2">
+            <div id="map" ></div>
+        </div>
+    </div>
+
+    <!-- <div class="row" id="chat-opt">
+         <input class="form-control col m-4" type="text" id="inp-msg">
+         <button class="btn btn-info col m-4" id="btn-send">SEND</button>
+     </div>-->
+    <div class="row" id="send_request">
+        <input class="form-control col m-4" type="text" id="inp_req">
+        <button class="btn btn-info col m-4" id="btn_req">Send Request</button>
+        <button class="btn btn-info col m-4" id="loc_all">locate all</button>
+
+    </div>
+
+    <div class="row p-4 m-4" id="chatlist">
+
+    </div>
+
+
+</div>
+</body>
+</html>

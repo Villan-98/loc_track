@@ -112,7 +112,7 @@ io.on('connection', function (socket) {
                         private: true,
                         track:true,                 //track to open the option of yes or no button on the friend's page
                         sender: socketIdName[socket.id].username,
-                        message: msg_out,
+                        message: msg_in,
                         timestamp: new Date(),
                         socket_id:socket.id
                     })
@@ -132,14 +132,14 @@ io.on('connection', function (socket) {
             socketIdName[socketIdName[socket.id].fetcher].got_loc_permission-=1
 
 
-            let msg_in="Tracker_stopped by"+socketIdName[socket.id].username
+            let msg_in="Tracker_stopped by "+socketIdName[socket.id].username
             translate.getText(msg_in,{to: "ur"}).then(function(data){
                 let msg_out=data.text
 
                 io.to(socketIdName[socket.id].fetcher).emit('chat',{
                     sender:socketIdName[socket.id].username,
                     private:true,
-                    message: msg_out
+                    message: msg_in
                 })
                 io.to(socketIdName[socket.id].fetcher).emit('disable',{})
             }).catch();
@@ -183,7 +183,7 @@ io.on('connection', function (socket) {
             io.to(recipient).emit('chat', {
                 private: true,
                 sender: socketIdName[socket.id].username,
-                message: msg_out,
+                message: msg_in,
                 timestamp: new Date(),
                 button:true
             })
