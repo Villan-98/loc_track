@@ -1,8 +1,8 @@
 const express = require('express')
 const http = require('http')
 const socketio = require('socket.io')
-//const translate = require('translate-api')
-
+const translate = require('translate-api')
+const languages = require('language-list')();
 const app = express()
 
 const server = http.createServer(app)
@@ -10,11 +10,15 @@ const io = socketio(server)
 
 let socketIdName = {}
 let msg
-let transText = 'logged in';
+let transText = 'latitude';
+let language='hi'
 
-/*translate.getText(transText,{to: 'hi'}).then(function(data){
+console.log(languages.getLanguageName('zh-CN')); // Bihari
+console.log(languages.getLanguageCode('urdu'))
+translate.getText(transText,{to: "ur"}).then(function(data){
     msg=data.text
-}).catch();*/
+    console.log(msg)
+}).catch();
 io.on('connection', function (socket) {
     console.log('Socket connected ' + socket.id)
 
@@ -45,7 +49,8 @@ io.on('connection', function (socket) {
         user_list()
     })
     socket.on('login', (data) => {
-        socketIdName[socket.id] = {username:data.username,got_loc_permission:0,per_of:{}}
+        console.log(data.language)
+        socketIdName[socket.id] = {username:data.username,got_loc_permission:0,per_of:{},lang_code:"en"}
         socket.join(data.username)                                              //why this function is here
         user_list()                 //to update the list of online user
         io.emit('logged_in',
@@ -69,6 +74,12 @@ io.on('connection', function (socket) {
 
         }
         socket.emit("take_cord",cordinate)
+    })
+    ////////////language input//////////////
+    socket.on('enter_language',(data)=>{
+        let converted_code=(languages.getLanguageCode(data.lang))
+        socketIdName[socket.id]['lang_code']=converted_code
+        console.log(socketIdName[socket.id]['lang_code'])
     })
     /////////////////
     function validate_user(candidate){
@@ -94,14 +105,20 @@ io.on('connection', function (socket) {
                 socket.emit('alert',{})
             }
             else{
-                io.to(recipient).emit('chat', {
-                    private: true,
-                    track:true,                 //track to open the option of yes or no button on the friend's page
-                    sender: socketIdName[socket.id].username,
-                    message: "I Want to track your location",
-                    timestamp: new Date(),
-                    socket_id:socket.id
-                })
+                let msg_in="I Want to track your location"
+                translate.getText(msg_in,{to: "ur"}).then(function(data){
+                    let msg_out=data.text
+                    io.to(recipient).emit('chat', {
+                        private: true,
+                        track:true,                 //track to open the option of yes or no button on the friend's page
+                        sender: socketIdName[socket.id].username,
+                        message: msg_out,
+                        timestamp: new Date(),
+                        socket_id:socket.id
+                    })
+
+                }).catch();
+
             }
         }
         else{
@@ -113,11 +130,19 @@ io.on('connection', function (socket) {
     socket.on('stop_tracking',(data)=>{
         socketIdName[socketIdName[socket.id].fetcher].per_of[0]=null                    //try to implement splice here
         socketIdName[socketIdName[socket.id].fetcher].got_loc_permission-=1
-        io.to(socketIdName[socket.id].fetcher).emit('chat',{
+
+
+        let msg_in="Tracker_stopped by"+socketIdName[socket.id].username
+        translate.getText(msg_in,{to: "ur"}).then(function(data){
+            let msg_out=data.text
+
+            io.to(socketIdName[socket.id].fetcher).emit('chat',{
                 sender:socketIdName[socket.id].username,
                 private:true,
-                message: "Tracker Stopped"
+                message: msg_out
             })
+        }).catch();
+
         }
     )
     socket.on('request_pressed',(data)=>{
@@ -146,13 +171,24 @@ io.on('connection', function (socket) {
                 nextTime:false
             })
         }
-        io.to(recipient).emit('chat', {
-            private: true,
-            sender: socketIdName[socket.id].username,
-            message: data.message,
-            timestamp: new Date(),
-            button:true
-        })
+
+
+
+
+        let msg_in=data.message
+        translate.getText(msg_in,{to: "ur"}).then(function(data){
+            let msg_out=data.text
+
+            io.to(recipient).emit('chat', {
+                private: true,
+                sender: socketIdName[socket.id].username,
+                message: msg_out,
+                timestamp: new Date(),
+                button:true
+            })
+        }).catch();
+
+
     })
 
     socket.on(('my_location'),(data)=>
@@ -195,20 +231,34 @@ io.on('connection', function (socket) {
         }
             show_dist(lat,long,latf,longf,"K").then(function(data)
             {
-                console.log("entered"+data.of1)
-                socket.emit('chat', {
-                    private: true,
-                   // sender: socketIdName[data.id_of_per_giving]['username'],      why data.id_of_per_giving is undefined here
-                    sender:location_of,
-                    message: "longitude is"+longf+"latitude is"+latf+"approx distance"+distance1,
-                    timestamp: new Date(),
-                    map:true,
-                    longitude_me:long,
-                    latitude_me:lat,
-                    latitude:latf ,
-                    longitude:longf,
+                let msg_in= "longitude is"+longf+"latitude is"+latf+"approx distance"+distance1
+                let msg_out
+                let lang=socketIdName[socket.id].lang_code
+                console.log("in final"+socketIdName[socket.id].lang_code)
+                let a="hi"
+                function get_lang(){
+                    lang=socketIdName[socket.id].lang_code
+                }
 
-                })
+                translate.getText(msg_in,{to:'hi'}).then(function(data){
+                    msg_out=data.text
+                    console.log(msg)
+                    socket.emit('chat', {
+                        private: true,
+                        // sender: socketIdName[data.id_of_per_giving]['username'],      why data.id_of_per_giving is undefined here
+                        sender:location_of,
+                        message: msg_out,
+                        timestamp: new Date(),
+                        map:true,
+                        longitude_me:long,
+                        latitude_me:lat,
+                        latitude:latf ,
+                        longitude:longf,
+
+                    })
+                }).catch();
+                console.log("entered"+data.of1)
+
 
             }).catch(function(err){
                 console.log(err)
@@ -258,6 +308,8 @@ io.on('connection', function (socket) {
        // }
     })
 })
+
+app.use('/loc',express.static(__dirname + '/public/second.html'))
 app.use('/', express.static(__dirname + '/public'))
 app.get('/post',(req,res)=>{
     res.send(socketIdName)

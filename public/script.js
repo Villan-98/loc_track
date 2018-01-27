@@ -1,5 +1,4 @@
 let socket = io()
-
 function initMap(){}
 $(function () {
 
@@ -13,6 +12,7 @@ $(function () {
     containerChat.hide()
     containersend.hide()
     stopLocTrack.hide()
+    $('.for_hide').hide()
     $('#refetch').hide()
    // $('#chat-opt').hide()
     $('#map').hide()
@@ -23,6 +23,7 @@ $(function () {
     let listChats = $('#chatlist')
     let longitude
     let latitude
+    $('#abc').hide
 
 
     //////function to find location/////////////////////
@@ -119,8 +120,10 @@ $(function () {
     //login btn event///////
     btnLogin.click(() => {
         socket.emit('login', {
-            username: inpUsername.val()
+            username: inpUsername.val(),
+            //language:input_language.val()
         })
+        //window.location.replace("localhost:2345/loc");
 
     })
     ///
@@ -158,6 +161,15 @@ $(function () {
     socket.on('alert',(data)=>{
         alert("OOOps something went wrong");
     })
+    //////language button//////////////
+    $('#btn-lang').click(()=>{
+        socket.emit('enter_language',{
+            lang: $("#input_language option:selected").text()
+        })
+       console.log()
+    })
+
+
     //////////block to get location of permitted user//////
     socket.on('take_cord',(data)=>{
         console.log(data)
@@ -250,12 +262,8 @@ $(function () {
         for(x in data)
         {
             str+=`
+            <li> ${data[x].username}</li>
             
-             <div class="card" col-12">
-                <div class="card-body">
-                    <div class="card-title">${data[x].username}</div>
-                 </div>
-               </div>  
             `
             console.log(data[x].username)
         }
@@ -339,6 +347,7 @@ $(function () {
                 console.log("entered in button")
                 getRequestButton.show()
                 $('#refetch').show()
+                $('#send_request').show()
             }
             if(data.map)
             {{
