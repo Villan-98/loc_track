@@ -13,11 +13,11 @@ let msg
 let transText = 'latitude';
 let language='hi'
 
-console.log(languages.getLanguageName('zh-CN')); // Bihari
-console.log(languages.getLanguageCode('urdu'))
+//console.log(languages.getLanguageName('zh-CN')); // Bihari
+//console.log(languages.getLanguageCode('urdu'))
 translate.getText(transText,{to: "ur"}).then(function(data){
     msg=data.text
-    console.log(msg)
+    //console.log(msg)
 }).catch();
 io.on('connection', function (socket) {
     console.log('Socket connected ' + socket.id)
